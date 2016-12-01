@@ -33,22 +33,20 @@ var runp = function(done) {
 		return o;
 	};
 
-	var run = function(cb, arg) {
-		if(q.length == 0) {
-			cb(null, arg);
-			return;
-		}
-
-		var f = q.shift();
-		f(function(e, arg) {
-			if(e) {
-				q = [];
-				cb(e, arg);
-			}
-			else {
-				run(cb, arg);
-			}
-		}, arg);
+	var run = function(cb) {
+		var errors = [];
+		var results = [];
+		var num_done = 0;
+		q.forEach(function(f, i) {
+			f(function(e, r) {
+				errors[i] = e || null;
+				results[i] = r || null;
+				num_done += 1;
+				if(num_done == q.length) {
+					cb(errors, results);
+				}
+			}, i);
+		});
 	};
 
 	o.add = add
@@ -67,24 +65,29 @@ if((typeof process) !== 'undefined') {
 		// module is being executed directly - run tests
 
 		var log = function(s) { console.log(s); }
+		var insp = require("util").inspect;
 
 		var f = function(cb, n) {
-			log(n+" running");
-			var b = Math.random() >= 0.6;
-			if(b) {
-				cb("ERROR", "occurred in "+n);
-			}
-			else  {
-				cb(null, n + 1);
-			}
+			var t = 1000 + (Math.random() * 1000);
+			log(n+" running for "+t+"ms ...");
+			setTimeout(function() {
+				if(Math.random() >= 0.6) {
+					cb("ERROR-"+n);
+				}
+				else  {
+					cb(null, "ok-"+n);
+				}
+			}, t);
 		}
 
 		runp()
 		.add(f)
 		.add(f)
 		.run(function(e, r) {
-			log("finished:  e='"+e+"',  r='"+JSON.stringify(r)+"'")
-		}, 1)
+			log("finished");
+			log("errors: "+insp(e));
+			log("results: "+insp(r));
+		})
 
 	}
 
