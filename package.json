@@ -1,0 +1,23 @@
+{
+	"name": "runp",
+
+	"version": "1.0.0",
+
+	"description" : "Run a queue of functions in parallel",
+
+	"author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
+
+	"license": {
+		"type": "MIT",
+		"url": "https://github.com/sleeplessinc/runp/raw/master/LICENSE"
+	},
+
+	"repository": [
+		{
+			"type": "git",
+			"url": "http://github.com/sleeplessinc/runp"
+		}
+	],
+
+	"main":"runp.js"
+}
