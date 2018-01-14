@@ -1,6 +1,6 @@
 
 /*
-Copyright 2016 Sleepless Software Inc. All rights reserved.
+Copyright 2017 Sleepless Software Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -22,7 +22,7 @@ IN THE SOFTWARE.
 */
 
 
-var runp = function(done) {
+var runp = function() {
 
 	var o = {};
 
