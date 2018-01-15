@@ -22,26 +22,34 @@ IN THE SOFTWARE.
 */
 
 
-var runp = function() {
+// Creates a runp object and returns it
+// The runp object contains 2 functions, add() and run()
+function runp() {
 
 	var o = {};
+	var q = [];
 
-	var q = []
-
-	var add = function(f) {
+	// Adds a function to the runp object
+	var add = function add(f) {
 		q.push(f);
 		return o;
 	};
 
+	// Starts all the functions at once
 	var run = function(cb) {
 		var errors = [];
 		var results = [];
 		var num_done = 0;
 		q.forEach(function(f, i) {
+			// Call each function with a callback and an index # (0-based)
+			// The callback expect err, and result arguments.
 			f(function(e, r) {
+				// One of the functions is finished
 				errors[i] = e || null;
 				results[i] = r || null;
 				num_done += 1;
+				// when all finished, call the cb that was passed into run() with 
+				// a list of errors and results.
 				if(num_done == q.length) {
 					cb(errors, results);
 				}
@@ -49,20 +57,20 @@ var runp = function() {
 		});
 	};
 
-	o.add = add
-	o.run = run
+	o.add = add;
+	o.run = run;
 
-	return o
-}
+	return o;
+};
 
 
 if((typeof process) !== 'undefined') {
-
 	// we're in node.js (versus browser)
-	module.exports = runp
+
+	module.exports = runp;
 
 	if(require && require.main === module) {
-		// module is being executed directly - run tests
+		// module is being executed directly, so run tests
 
 		var log = function(s) { console.log(s); }
 		var insp = require("util").inspect;
