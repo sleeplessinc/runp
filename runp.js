@@ -51,7 +51,8 @@ function runp() {
 				// when all finished, call the cb that was passed into run() with 
 				// a list of errors and results.
 				if(num_done == q.length) {
-					cb(errors, results);
+					if(cb)
+						cb(errors, results);
 				}
 			}, i);
 		});
