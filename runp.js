@@ -30,7 +30,9 @@ function runp() {
 	var q = [];
 
 	// Adds a function to the runp object
-	var add = function add(f) {
+	var add = function add() {
+		let args = Array.prototype.slice.call(arguments);
+		let f = args.shift();
 		q.push(f);
 		return o;
 	};
@@ -51,8 +53,9 @@ function runp() {
 				// when all finished, call the cb that was passed into run() with 
 				// a list of errors and results.
 				if(num_done == q.length) {
-					if(cb)
+					if(cb) {
 						cb(errors, results);
+					}
 				}
 			}, i);
 		});
