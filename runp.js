@@ -32,8 +32,16 @@ function runp() {
 	// Adds a function to the runp object
 	var add = function add() {
 		let args = Array.prototype.slice.call(arguments);
-		let f = args.shift();
-		q.push(f);
+		if( typeof args[ 0 ] === "function" ) {
+			q.push( args );
+			return o;
+		}
+		// assume it's an array and and 2nd arg is function
+		let arr = args.shift();
+		let fun = args.shift();
+		arr.forEach( x => {
+			q.push( [ fun, x ].concat( args ) );
+		});
 		return o;
 	};
 
@@ -42,10 +50,11 @@ function runp() {
 		var errors = [];
 		var results = [];
 		var num_done = 0;
-		q.forEach(function(f, i) {
+		q.forEach(function(args, i) {
+			let fun = args.shift();
 			// Call each function with a callback and an index # (0-based)
 			// The callback expect err, and result arguments.
-			f(function(e, r) {
+			args.unshift( function(e, r) {
 				// One of the functions is finished
 				errors[i] = e || null;
 				results[i] = r || null;
@@ -57,7 +66,8 @@ function runp() {
 						cb(errors, results);
 					}
 				}
-			}, i);
+			} );
+			fun.apply( null, args );
 		});
 	};
 
@@ -79,9 +89,9 @@ if((typeof process) !== 'undefined') {
 		var log = function(s) { console.log(s); }
 		var insp = require("util").inspect;
 
-		var f = function(cb, n) {
+		var f = function(cb, n, s) {
 			var t = 1000 + (Math.random() * 1000);
-			log(n+" running for "+t+"ms ...");
+			log(n+" running for "+t+"ms ... s="+s);
 			setTimeout(function() {
 				if(Math.random() >= 0.6) {
 					cb("ERROR-"+n);
@@ -93,12 +103,43 @@ if((typeof process) !== 'undefined') {
 		}
 
 		runp()
-		.add(f)
-		.add(f)
+		.add(f, 3, "foo")
+		.add([5,7], f, "bar")
 		.run(function(e, r) {
 			log("finished");
 			log("errors: "+insp(e));
 			log("results: "+insp(r));
+
+
+			// run the example form the readme
+			runp()
+			.add(function(cb) {
+				// do something.
+				cb();	// call this when it's done
+			})
+			.add(function(cb, str) {
+				// str == "foo"
+				cb("error "+str);
+			}, "foo")
+			.add(function(cb, str1, str2) {
+				// str1 == "bar", str2 = "baz"
+				cb(null, "okay "+str1+" "+str2);
+			}, "bar", "baz")
+			.add( [ 7, 11 ], function( cb, num, str ) {
+				// this function called twice once with num = 7 and once with num = 11
+				// both times str = "qux"
+				cb(null, "okay "+num+" "+str);
+			}, "qux")
+			.run(function(errors, results) {
+				// all the functions have completed
+				// errors = ["error foo", null, null, null ];
+				// results = [null, "okay bar baz", "okay 7 qux", "okay 11 qux" ];
+				log(errors);
+				log(results);
+			})
+
+
+
 		})
 
 	}
