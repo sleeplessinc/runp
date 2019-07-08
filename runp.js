@@ -50,6 +50,12 @@ function runp() {
 		var errors = [];
 		var results = [];
 		var num_done = 0;
+		if( q.length == 0 ) {
+			if(cb) {
+				cb(errors, results);
+			}
+			return;
+		}
 		q.forEach(function(args, i) {
 			let fun = args.shift();
 			// Call each function with a callback and an index # (0-based)
